@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pemrograman_mobile/screens/login_screen.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -6,8 +7,16 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Register'), backgroundColor: Colors.blue),
-      body: Padding(
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.white),
+        title: Text(
+          'Register',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.blue,
+      ),
+      body: SingleChildScrollView(
+        //agar tidak overflow karena bisa discroll
         padding: EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -82,6 +91,7 @@ class RegisterScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   // Handle register
+                  Navigator.pushReplacementNamed(context, '/home');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
@@ -89,7 +99,11 @@ class RegisterScreen extends StatelessWidget {
                 ),
                 child: Text(
                   'REGISTER',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -101,8 +115,17 @@ class RegisterScreen extends StatelessWidget {
               children: [
                 Text("Already have an account? "),
                 TextButton(
+                  style: TextButton.styleFrom(foregroundColor: Colors.blue),
                   onPressed: () {
                     // Navigate to login
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                      (Route<dynamic> route) =>
+                          false, // hapus semua halaman sebelumnya
+                    );
                   },
                   child: Text('Login'),
                 ),

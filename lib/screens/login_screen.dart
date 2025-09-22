@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pemrograman_mobile/screens/home_screen.dart';
+import 'package:pemrograman_mobile/screens/register_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -6,9 +8,16 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login'), backgroundColor: Colors.blue),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
+      appBar: AppBar(
+        title: Text(
+          'Selamat Datang',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.blue,
+      ),
+      body: SingleChildScrollView(
+        //agar tidak overflow karena bisa discroll
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 64.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -51,6 +60,10 @@ class LoginScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   // Handle login
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
@@ -58,7 +71,11 @@ class LoginScreen extends StatelessWidget {
                 ),
                 child: Text(
                   'LOGIN',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -70,8 +87,15 @@ class LoginScreen extends StatelessWidget {
               children: [
                 Text("Don't have an account? "),
                 TextButton(
+                  style: TextButton.styleFrom(foregroundColor: Colors.blue),
                   onPressed: () {
                     // Navigate to register
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RegisterScreen(),
+                      ),
+                    );
                   },
                   child: Text('Register'),
                 ),
