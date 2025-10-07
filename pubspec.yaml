@@ -10,8 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  collection: ^1.17.0
   cupertino_icons: ^1.0.8
   uuid: ^4.4.0
+  fl_chart: ^0.68.0
 
 dev_dependencies:
   flutter_test:
@@ -20,3 +22,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - lib/assets/images/IMG_0752.JPG
