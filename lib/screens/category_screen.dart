@@ -39,7 +39,17 @@ class _CategoryScreenState extends State<CategoryScreen> {
     final categories = CategoryManager.categories;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Daftar Kategori')),
+      appBar: AppBar(
+        title: const Text(
+          'Daftar Kategori',
+          style: TextStyle(
+            color: Colors.white,
+            // fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.blue,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
       body: Column(
         children: [
           // Input tambah kategori

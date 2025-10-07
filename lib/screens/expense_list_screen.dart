@@ -76,8 +76,12 @@ class ExpenseListScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Daftar Pengeluaran'),
+        title: Text(
+          'Daftar Pengeluaran',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.blue,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Column(
         children: [
@@ -173,6 +177,7 @@ class ExpenseListScreen extends StatelessWidget {
           );
         },
         backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
         child: Icon(Icons.add),
       ),
     );

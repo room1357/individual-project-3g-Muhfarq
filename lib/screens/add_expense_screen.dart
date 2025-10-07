@@ -65,8 +65,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Pengeluaran'),
+        title: const Text(
+          'Tambah Pengeluaran',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.blue,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -131,6 +135,19 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _saveExpense,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // warna tombol
+                  foregroundColor: Colors.white, // warna teks & ikon
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      12,
+                    ), // biar sudutnya rounded
+                  ),
+                ),
                 child: const Text('Simpan'),
               ),
             ],
