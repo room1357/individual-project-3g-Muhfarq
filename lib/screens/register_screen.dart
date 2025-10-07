@@ -3,9 +3,7 @@ import 'package:pemrograman_mobile/screens/login_screen.dart';
 import '../controllers/register_controller.dart';
 
 class RegisterScreen extends StatefulWidget {
-  final RegisterController registerController;
-
-  const RegisterScreen({super.key, required this.registerController});
+  const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -13,42 +11,20 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   // 🔹 Controller untuk input
-  final TextEditingController _fullNameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final _fullNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
-  // 🔹 Hapus resource saat screen ditutup
-  @override
-  void dispose() {
-    _fullNameController.dispose();
-    _emailController.dispose();
-    _usernameController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
+  final RegisterController _registerController = RegisterController();
 
-  // 🔹 Fungsi untuk handle register
   void _handleRegister() {
     final fullName = _fullNameController.text.trim();
     final email = _emailController.text.trim();
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
-
-    // Validasi
-    if (fullName.isEmpty ||
-        email.isEmpty ||
-        username.isEmpty ||
-        password.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Semua field wajib diisi!')));
-      return;
-    }
 
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -57,8 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    // Simpan user baru
-    final success = widget.registerController.register(
+    final success = _registerController.register(
       username,
       password,
       email: email,
@@ -70,20 +45,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
         const SnackBar(content: Text('Akun berhasil dibuat! Silakan login.')),
       );
 
-      // 🔹 Kembali ke login screen dengan data yang sama
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder:
-              (context) =>
-                  LoginScreen(registerController: widget.registerController),
-        ),
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Username sudah digunakan.')),
       );
     }
+  }
+
+  // 🔹 Hapus resource saat screen ditutup
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _emailController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -207,10 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (context) => LoginScreen(
-                              registerController: widget.registerController,
-                            ),
+                        builder: (context) => const LoginScreen(),
                       ),
                     );
                   },

@@ -2,30 +2,24 @@ import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
-import 'controllers/register_controller.dart';
 
 void main() {
-  final registerController = RegisterController();
-  runApp(MyApp(registerController: registerController));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  final RegisterController registerController;
-  const MyApp({super.key, required this.registerController});
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
 
-  // 🔹 akses global supaya bisa dipanggil dari halaman lain
+  // 🔹 Untuk ganti tema dari halaman lain (kalau mau)
   static _MyAppState? of(BuildContext context) =>
       context.findAncestorStateOfType<_MyAppState>();
 }
 
 class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.system;
-
-  // ✅ controller global
-  final RegisterController _registerController = RegisterController();
 
   void changeTheme(ThemeMode themeMode) {
     setState(() {
@@ -48,18 +42,15 @@ class _MyAppState extends State<MyApp> {
       // Tema gelap
       darkTheme: ThemeData.dark(),
 
-      // 🔹 themeMode bisa berubah lewat PengaturanScreen
+      // Bisa diganti lewat fungsi changeTheme
       themeMode: _themeMode,
 
-      // ✅ Pass controller ke LoginScreen
-      home: LoginScreen(registerController: _registerController),
+      // Halaman awal
+      home: const LoginScreen(),
+
       routes: {
         '/home': (context) => const HomeScreen(),
-
-        // ✅ Pass controller ke RegisterScreen
-        '/register':
-            (context) =>
-                RegisterScreen(registerController: _registerController),
+        '/register': (context) => const RegisterScreen(),
       },
     );
   }

@@ -6,7 +6,6 @@ import 'package:pemrograman_mobile/screens/category_screen.dart';
 import 'package:pemrograman_mobile/screens/profile_screen.dart';
 import 'package:pemrograman_mobile/screens/export_pdf_screen.dart';
 import 'package:pemrograman_mobile/screens/pengaturan_screen.dart';
-import 'package:pemrograman_mobile/controllers/register_controller.dart';
 import 'package:pemrograman_mobile/screens/login_screen.dart';
 import '../managers/expense_manager.dart';
 
@@ -53,11 +52,7 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(
-                  builder:
-                      (context) =>
-                          LoginScreen(registerController: RegisterController()),
-                ),
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
                 (route) => false,
               );
             },

@@ -3,10 +3,14 @@ import 'register_controller.dart';
 import 'package:collection/collection.dart';
 
 class LoginController {
-  final RegisterController _registerController;
+  //singleton instance
+  static final LoginController _instance = LoginController._internal();
+  factory LoginController() => _instance;
+  LoginController._internal();
 
-  LoginController(this._registerController);
-
+  // Ambil singleton RegisterController
+  final RegisterController _registerController = RegisterController();
+  //Login
   User? login(String username, String password) {
     return _registerController.users.firstWhereOrNull(
       (user) => user.username == username && user.password == password,

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pemrograman_mobile/controllers/login_controller.dart';
-import 'package:pemrograman_mobile/controllers/register_controller.dart';
 import 'package:pemrograman_mobile/screens/home_screen.dart';
 import 'package:pemrograman_mobile/screens/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  final RegisterController registerController;
-  const LoginScreen({super.key, required this.registerController});
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -16,13 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  late LoginController _loginController;
-
-  @override
-  void initState() {
-    super.initState();
-    _loginController = LoginController(widget.registerController);
-  }
+  final _loginController = LoginController();
 
   void _handleLogin() {
     final username = _usernameController.text.trim();
@@ -41,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     }
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,8 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => RegisterScreen(
-                          registerController: widget.registerController,
+                        builder: (context) => const RegisterScreen(
                         ),
                       ),
                     );

@@ -9,6 +9,7 @@ class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AddExpenseScreenState createState() => _AddExpenseScreenState();
 }
 
@@ -100,7 +101,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<Category>(
-                value: _selectedCategory,
+                initialValue: _selectedCategory,
                 items:
                     CategoryManager.categories
                         .map(
