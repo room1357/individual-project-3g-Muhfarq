@@ -6,7 +6,11 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Profil"), backgroundColor: Colors.blue),
+      appBar: AppBar(
+        title: Text("Profil", style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.blue,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -14,11 +18,11 @@ class ProfileScreen extends StatelessWidget {
             // Foto profil dari assets
             CircleAvatar(
               radius: 60,
-              backgroundImage: AssetImage("assets/images/profil.jpg"),
+              backgroundImage: AssetImage("../assets/images/IMG_0752.JPG"),
             ),
             SizedBox(height: 20),
             Text(
-              "Muhammad Faruq Burhanudin Nahari",
+              "Muhammad Faruq ",
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
