@@ -9,7 +9,6 @@ class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _AddExpenseScreenState createState() => _AddExpenseScreenState();
 }
 
@@ -21,6 +20,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   Category? _selectedCategory;
   DateTime _selectedDate = DateTime.now();
+
+  // 🎨 Warna sesuai tema
+  final Color darkGreen = const Color(0xFF0B5A3D);
+  final Color paleGreen = const Color(0xFFDCFDEB);
+  final Color lightBox = const Color(0xFFE9FFF3); // lebih terang dari bg
+  final Color brightGreen = const Color(0xFF1DC981);
 
   @override
   void initState() {
@@ -48,7 +53,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   void _saveExpense() {
     if (_formKey.currentState!.validate()) {
       final newExpense = Expense(
-        id: const Uuid().v4(), // generate id unik
+        id: const Uuid().v4(),
         title: _titleController.text,
         amount: double.parse(_amountController.text),
         category: _selectedCategory!.name,
@@ -57,103 +62,185 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       );
 
       ExpenseManager.expenses.add(newExpense);
-
-      Navigator.pop(context); // kembali ke list
+      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: paleGreen,
       appBar: AppBar(
+        backgroundColor: darkGreen,
+        foregroundColor: Colors.white,
+        elevation: 0,
         title: const Text(
           'Tambah Pengeluaran',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.blue,
-        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
+              _buildInputField(
                 controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Judul'),
+                label: 'Judul',
                 validator:
                     (value) =>
                         value == null || value.isEmpty
                             ? 'Masukkan judul'
                             : null,
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              const SizedBox(height: 12),
+              _buildInputField(
                 controller: _amountController,
-                decoration: const InputDecoration(labelText: 'Jumlah'),
-                keyboardType: TextInputType.number,
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'Masukkan jumlah'
-                            : null,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<Category>(
-                initialValue: _selectedCategory,
-                items:
-                    CategoryManager.categories
-                        .map(
-                          (cat) => DropdownMenuItem(
-                            value: cat,
-                            child: Text(cat.name),
-                          ),
-                        )
-                        .toList(),
-                onChanged: (cat) {
-                  setState(() {
-                    _selectedCategory = cat;
-                  });
-                },
-                decoration: const InputDecoration(labelText: 'Kategori'),
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(
-                  'Tanggal: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                label: 'Jumlah',
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
                 ),
-                trailing: Icon(Icons.calendar_today),
-                onTap: _pickDate,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Masukkan jumlah';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Masukkan angka yang valid';
+                  }
+                  return null;
+                },
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              const SizedBox(height: 12),
+              _buildDropdownField(),
+              const SizedBox(height: 12),
+              _buildDatePickerField(context),
+              const SizedBox(height: 12),
+              _buildInputField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Deskripsi'),
+                label: 'Deskripsi',
                 maxLines: 3,
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _saveExpense,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // warna tombol
-                  foregroundColor: Colors.white, // warna teks & ikon
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      12,
-                    ), // biar sudutnya rounded
-                  ),
-                ),
-                child: const Text('Simpan'),
-              ),
+              const SizedBox(height: 28),
+              _buildSaveButton(),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // 🔹 Input field lembut tanpa border
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    String? Function(String?)? validator,
+    TextInputType? keyboardType,
+    int maxLines = 1,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      validator: validator,
+      maxLines: maxLines,
+      style: TextStyle(color: darkGreen, fontWeight: FontWeight.w500),
+      decoration: InputDecoration(
+        hintText: label,
+        hintStyle: TextStyle(color: darkGreen.withOpacity(0.6)),
+        filled: true,
+        fillColor: lightBox,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 14,
+          horizontal: 16,
+        ),
+      ),
+    );
+  }
+
+  // 🔹 Dropdown field lembut
+  Widget _buildDropdownField() {
+    return DropdownButtonFormField<Category>(
+      value: _selectedCategory,
+      items:
+          CategoryManager.categories
+              .map(
+                (cat) => DropdownMenuItem(
+                  value: cat,
+                  child: Text(
+                    cat.name,
+                    style: TextStyle(
+                      color: darkGreen,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+      onChanged: (cat) {
+        setState(() {
+          _selectedCategory = cat;
+        });
+      },
+      decoration: InputDecoration(
+        hintText: 'Pilih kategori',
+        hintStyle: TextStyle(color: darkGreen.withOpacity(0.6)),
+        filled: true,
+        fillColor: lightBox,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 14,
+          horizontal: 16,
+        ),
+      ),
+      validator: (value) => value == null ? 'Pilih kategori' : null,
+    );
+  }
+
+  // 🔹 Date picker lembut tanpa label dummy
+  Widget _buildDatePickerField(BuildContext context) {
+    return GestureDetector(
+      onTap: _pickDate,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        decoration: BoxDecoration(
+          color: lightBox,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+              style: TextStyle(color: darkGreen, fontWeight: FontWeight.w500),
+            ),
+            Icon(Icons.calendar_today, color: darkGreen),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 🔹 Tombol simpan
+  Widget _buildSaveButton() {
+    return ElevatedButton(
+      onPressed: _saveExpense,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: brightGreen,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        elevation: 3,
+      ),
+      child: const Text(
+        'Simpan',
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
     );
   }

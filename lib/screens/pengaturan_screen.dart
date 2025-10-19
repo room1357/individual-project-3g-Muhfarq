@@ -7,9 +7,10 @@ class PengaturanScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFDCFDEB),
       appBar: AppBar(
         title: const Text("Pengaturan", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color(0xFF0B5A3D),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
@@ -19,14 +20,29 @@ class PengaturanScreen extends StatelessWidget {
           children: [
             const Text(
               "Tema",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0B5A3D),
+              ),
             ),
             const SizedBox(height: 10),
 
             // 🔹 Switch untuk Dark Mode
             ListTile(
-              title: const Text("Dark Mode"),
+              tileColor: const Color(0xFFABEFCA),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              title: const Text(
+                "Dark Mode",
+                style: TextStyle(
+                  color: Color(0xFF0B5A3D),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               trailing: Switch(
+                activeColor: const Color(0xFF1DC981),
                 value: Theme.of(context).brightness == Brightness.dark,
                 onChanged: (bool value) {
                   if (value) {
@@ -48,7 +64,7 @@ class PengaturanScreen extends StatelessWidget {
                   MyApp.of(context)?.changeTheme(ThemeMode.system);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: const Color(0xFF1DC981),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
@@ -57,10 +73,11 @@ class PengaturanScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  elevation: 2,
                 ),
                 child: const Text(
-                  "Ikuti System",
-                  style: TextStyle(fontSize: 16),
+                  "Ikuti Sistem",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),

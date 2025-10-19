@@ -1,16 +1,18 @@
+import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pemrograman_mobile/managers/expense_manager.dart';
 
 class ExportPdfController {
-  // 🔹 Singleton setup
+  // 🔹 Singleton
   static final ExportPdfController _instance = ExportPdfController._internal();
   factory ExportPdfController() => _instance;
   ExportPdfController._internal();
 
-  // 📦 Format rupiah
+  // 📦 Format Rupiah
   String formatCurrency(double amount) => amount
       .toStringAsFixed(0)
       .replaceAllMapped(
@@ -147,14 +149,28 @@ class ExportPdfController {
         'laporan-pengeluaran-${DateFormat('yyyy-MM-dd').format(DateTime.now())}.pdf';
 
     switch (type) {
-      case 'print':
+      case 'preview': // ✅ Preview PDF
         await Printing.layoutPdf(onLayout: (_) async => bytes);
         break;
-      case 'share':
-      case 'save':
+
+      case 'print': // ✅ Cetak PDF
+        await Printing.layoutPdf(onLayout: (_) async => bytes);
+        break;
+
+      case 'share': // ✅ Bagikan PDF
         await Printing.sharePdf(bytes: bytes, filename: fileName);
         break;
+
+      case 'download': // ✅ Unduh PDF ke folder Downloads
+        final directory = await getDownloadsDirectory();
+        final path = '${directory!.path}/$fileName';
+        final file = File(path);
+        await file.writeAsBytes(bytes);
+        print('✅ PDF disimpan di: $path');
+        break;
+
+      default:
+        print("⚠️ Aksi '$type' tidak dikenali");
     }
   }
 }
-              

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -45,12 +46,14 @@ class _MyAppState extends State<MyApp> {
       // Bisa diganti lewat fungsi changeTheme
       themeMode: _themeMode,
 
-      // Halaman awal
-      home: const LoginScreen(),
+      // Halaman awal: splash screen
+      home: SplashScreen(),
 
+      // Routes
       routes: {
         '/home': (context) => const HomeScreen(),
         '/register': (context) => const RegisterScreen(),
+        '/login': (context) => const LoginScreen(),
       },
     );
   }

@@ -6,10 +6,19 @@ class ExportPdfScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = ExportPdfController(); 
+    final controller = ExportPdfController();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Export PDF')),
+      backgroundColor: const Color(0xFFDCFDEB),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0B5A3D),
+        title: const Text(
+          'Export PDF',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: GridView.count(
@@ -20,25 +29,29 @@ class ExportPdfScreen extends StatelessWidget {
             _buildExportOption(
               icon: Icons.picture_as_pdf,
               title: 'Tampilkan PDF',
-              color: Colors.blue,
+              color: const Color(0xFF1DC981),
+              bgColor: const Color(0xFFABEFCA),
               onTap: () => controller.handleAction('preview'),
             ),
             _buildExportOption(
               icon: Icons.print,
               title: 'Cetak PDF',
-              color: Colors.green,
+              color: const Color(0xFF0B5A3D),
+              bgColor: const Color(0xFFABEFCA),
               onTap: () => controller.handleAction('print'),
             ),
             _buildExportOption(
               icon: Icons.share,
               title: 'Bagikan PDF',
-              color: Colors.orange,
+              color: const Color(0xFF1DC981),
+              bgColor: const Color(0xFFABEFCA),
               onTap: () => controller.handleAction('share'),
             ),
             _buildExportOption(
               icon: Icons.download,
               title: 'Unduh PDF',
-              color: Colors.purple,
+              color: const Color(0xFF0B5A3D),
+              bgColor: const Color(0xFFABEFCA),
               onTap: () => controller.handleAction('download'),
             ),
           ],
@@ -52,25 +65,32 @@ class ExportPdfScreen extends StatelessWidget {
     required IconData icon,
     required String title,
     required Color color,
+    required Color bgColor,
     required VoidCallback onTap,
   }) {
     return Card(
+      color: bgColor,
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
+        splashColor: const Color(0xFF1DC981).withValues(alpha: 0.2),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 40, color: color),
-              const SizedBox(height: 8),
+              Icon(icon, size: 48, color: color),
+              const SizedBox(height: 10),
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: Color(0xFF0B5A3D),
+                ),
               ),
             ],
           ),

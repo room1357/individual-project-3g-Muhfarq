@@ -13,8 +13,9 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-
   final _loginController = LoginController();
+
+  bool _obscurePassword = true;
 
   void _handleLogin() {
     final username = _usernameController.text.trim();
@@ -36,124 +37,166 @@ class _LoginScreenState extends State<LoginScreen> {
             borderRadius: BorderRadius.circular(12),
           ),
           backgroundColor: Colors.redAccent,
-          content: Row(
+          content: const Row(
             children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 12),
-              const Text("Username atau password salah"),
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 12),
+              Text("Username atau password salah"),
             ],
           ),
-          duration: const Duration(seconds: 3),
+          duration: Duration(seconds: 3),
         ),
       );
     }
   }
 
-  bool _obscurePassword = true;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Login',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.blue,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Logo
-            Container(
-              width: 100,
-              height: 100,
-              decoration: const BoxDecoration(
-                color: Colors.blue,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.person, size: 50, color: Colors.white),
-            ),
-            const SizedBox(height: 32),
+      backgroundColor: const Color(0xFFDCFDEB),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // 🔹 Logo
+              Image.asset('assets/images/Logo.png', width: 100, height: 100),
+              const SizedBox(height: 24),
 
-            // Username Field
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.account_circle),
-              ),
-            ),
-            const SizedBox(height: 16),
+              // 🔹 Nama Aplikasi
+              // const Text(
+              //   'S a k u K u',
+              //   style: TextStyle(
+              //     color: Color.fromARGB(255, 34, 175, 97),
+              //     fontSize: 28,
+              //     fontWeight: FontWeight.w600,
+              //     letterSpacing: 2,
+              //   ),
+              // ),
+              // const SizedBox(height: 8),
 
-            // Password Field
-            TextField(
-              controller: _passwordController,
-              obscureText: _obscurePassword,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.lock),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+              // 🔹 Slogan
+              const Text(
+                '“Kelola keuanganmu dengan tenang,\nbersama SakuKu.”',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  color: Color(0xFF0B5A3D),
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // 🔹 Username
+              TextField(
+                controller: _usernameController,
+                style: const TextStyle(color: Color(0xFF0B5A3D)),
+                decoration: InputDecoration(
+                  hintText: 'Username',
+                  hintStyle: const TextStyle(color: Color(0xFFDCFDEB)),
+                  filled: true,
+                  fillColor: const Color(0xFFABEFCA),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Login Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _handleLogin,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text(
-                  'LOGIN',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            // Register Link
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Don't have an account? "),
-                TextButton(
-                  style: TextButton.styleFrom(foregroundColor: Colors.blue),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RegisterScreen(),
+              // 🔹 Password
+              TextField(
+                controller: _passwordController,
+                obscureText: _obscurePassword,
+                style: const TextStyle(color: Color(0xFF0B5A3D)),
+                decoration: InputDecoration(
+                  hintText: 'Password',
+                  hintStyle: const TextStyle(color: Color(0xFFDCFDEB)),
+                  filled: true,
+                  fillColor: const Color(0xFFABEFCA),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: const Color(0xFFDCFDEB),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // 🔹 Tombol Login
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _handleLogin,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1DC981),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 🔹 Teks bawah
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Belum memiliki akun? Mari buat ',
+                    style: TextStyle(color: Color(0xFF0B5A3D)),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RegisterScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Akun Barumu',
+                      style: TextStyle(
+                        color: Color(0xFF1DC981),
+                        fontStyle: FontStyle.italic,
                       ),
-                    );
-                  },
-                  child: const Text('Register'),
-                ),
-              ],
-            ),
-          ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

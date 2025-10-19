@@ -15,13 +15,21 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  String _formatCurrency(double amount) {
-    return amount
-        .toStringAsFixed(0)
-        .replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        );
+  Color _getCategoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'makanan':
+        return Colors.orange;
+      case 'transportasi':
+        return Colors.green;
+      case 'utilitas':
+        return Colors.purple;
+      case 'hiburan':
+        return Colors.pink;
+      case 'pendidikan':
+        return Colors.blue;
+      default:
+        return Colors.grey;
+    }
   }
 
   Widget _buildDrawer(BuildContext context) {
@@ -30,12 +38,12 @@ class DashboardPage extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           const UserAccountsDrawerHeader(
-            decoration: BoxDecoration(color: Colors.blue),
+            decoration: BoxDecoration(color: Color(0xFF1DC981)),
             accountName: Text("Nama Pengguna"),
             accountEmail: Text("email@example.com"),
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
-              child: Icon(Icons.person, color: Colors.blue),
+              child: Icon(Icons.person, color: Color(0xFF1DC981)),
             ),
           ),
           ListTile(
@@ -81,247 +89,180 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final expenses = ExpenseManager.expenses;
 
-    final Map<DateTime, double> dailyTotals = {};
+    final Map<String, double> categoryTotals = {};
     for (var e in expenses) {
-      final date = DateTime(e.date.year, e.date.month, e.date.day);
-      dailyTotals[date] = (dailyTotals[date] ?? 0) + e.amount;
+      categoryTotals[e.category] = (categoryTotals[e.category] ?? 0) + e.amount;
     }
 
-    final sortedDates = dailyTotals.keys.toList()..sort();
+    final sections =
+        categoryTotals.entries.map((entry) {
+          final category = entry.key;
+          final total = entry.value;
+          final percentage = total / _calculateTotal() * 100;
 
-    final spots = <FlSpot>[];
-    for (int i = 0; i < sortedDates.length; i++) {
-      final date = sortedDates[i];
-      spots.add(FlSpot(i.toDouble(), dailyTotals[date]!));
-    }
+          return PieChartSectionData(
+            color: _getCategoryColor(category),
+            value: total,
+            title: "${percentage.toStringAsFixed(1)}%",
+            radius: 70,
+            titleStyle: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+          );
+        }).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Beranda', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.blue,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
       drawer: _buildDrawer(context),
-      body: Padding(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1DC981),
+        title: const Text('Beranda', style: TextStyle(color: Colors.white)),
+        iconTheme: const IconThemeData(color: Colors.white),
+        centerTitle: true,
+        elevation: 0,
+      ),
+      backgroundColor: const Color(0xFFBFF6CE),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            const SizedBox(height: 12),
             const Text(
-              'Selamat Datang👋',
+              'Selamat Datang 👋',
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
-                color: Colors.blue,
+                color: Color(0xFF0B5A3D),
               ),
             ),
             const Text(
               'Kelola pengeluaranmu dengan mudah',
-              style: TextStyle(fontStyle: FontStyle.italic),
+              style: TextStyle(
+                fontStyle: FontStyle.italic,
+                color: Colors.black54,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // 🔹 Kartu total pengeluaran
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Total Pengeluaran',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Semua kategori & bulan',
+                        style: TextStyle(color: Colors.black54, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    'Rp ${_calculateTotal().toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.redAccent,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
 
-            Card(
-              //elevation: 2,
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              child: ListTile(
-                title: const Text(
-                  'Total Pengeluaran',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: const Text('Semua kategori & bulan'),
-                trailing: Text(
-                  'Rp ${_calculateTotal().toStringAsFixed(0)}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            if (spots.isNotEmpty) ...[
+            // 🔹 Chart
+            if (sections.isNotEmpty) ...[
               const Text(
-                "Pengeluaranmu saat ini:",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                "Persentase Pengeluaran Berdasarkan Kategori",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0B5A3D),
+                ),
               ),
               const SizedBox(height: 12),
               Container(
                 height: 280,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.indigo.shade50,
-                      Colors.blue.shade50,
-                      Colors.white,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
+                  color: const Color(0xFFDDFBE7),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                child: LineChart(
-                  LineChartData(
-                    backgroundColor: Colors.transparent,
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      horizontalInterval: 50000,
-                      getDrawingHorizontalLine:
-                          (value) => FlLine(
-                            color: Colors.indigo.withValues(alpha: 0.1),
-                            strokeWidth: 1,
-                            dashArray: [5, 5],
-                          ),
-                    ),
+                child: PieChart(
+                  PieChartData(
+                    sections: sections,
+                    sectionsSpace: 4,
+                    centerSpaceRadius: 50,
                     borderData: FlBorderData(show: false),
-                    titlesData: FlTitlesData(
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 50,
-                          interval: 50000,
-                          getTitlesWidget: (value, meta) {
-                            if (value % 50000 == 0) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: Text(
-                                  'Rp ${(value / 1000).toInt()}K',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.indigo.shade700,
-                                  ),
-                                ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                          getTitlesWidget: (value, meta) {
-                            if (value.toInt() < sortedDates.length) {
-                              final date = sortedDates[value.toInt()];
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Text(
-                                  "${date.day}/${date.month}",
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.indigo.shade700,
-                                  ),
-                                ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                      ),
-                    ),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: spots,
-                        isCurved: true,
-                        curveSmoothness: 0.3,
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.blue.shade400,
-                            Colors.indigo.shade400,
-                          ],
-                        ),
-                        color: Colors.blue,
-                        barWidth: 3,
-
-                        dotData: FlDotData(
-                          show: true,
-                          getDotPainter:
-                              (spot, percent, barData, index) =>
-                                  FlDotCirclePainter(
-                                    radius: 4,
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                    strokeColor: Colors.blue.shade700,
-                                  ),
-                          checkToShowDot: (spot, barData) {
-                            return true;
-                          },
-                        ),
-
-                        belowBarData: BarAreaData(
-                          show: true,
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.blue.withValues(alpha: 0.3),
-                              Colors.blue.withValues(alpha: 0.1),
-                              Colors.transparent,
-                            ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            stops: [0.0, 0.5, 1.0],
-                          ),
-                        ),
-                        shadow: Shadow(
-                          color: Colors.blue.withValues(alpha: 0.3),
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
-                        ),
-                      ),
-                    ],
-                    lineTouchData: LineTouchData(
-                      enabled: true,
-                      touchTooltipData: LineTouchTooltipData(
-                        getTooltipItems: (touchedSpots) {
-                          return touchedSpots.map((touchedSpot) {
-                            return LineTooltipItem(
-                              'Rp ${_formatCurrency(touchedSpot.y)}',
-                              const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            );
-                          }).toList();
-                        },
-                      ),
-                      handleBuiltInTouches: true,
-                    ),
-                    minY: 0,
-                    maxY:
-                        spots.isNotEmpty
-                            ? (spots
-                                    .map((spot) => spot.y)
-                                    .reduce((a, b) => a > b ? a : b) *
-                                1.2)
-                            : 100000,
                   ),
                 ),
               ),
               const SizedBox(height: 20),
+
+              // 🔹 Legend kategori
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 16,
+                runSpacing: 8,
+                children:
+                    categoryTotals.keys.map((category) {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: _getCategoryColor(category),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            category,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+              ),
+              const SizedBox(height: 40),
             ] else ...[
-              const Expanded(
-                child: Center(
-                  child: Text(
-                    'Tidak ada data pengeluaran',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
+              const SizedBox(height: 60),
+              const Center(
+                child: Text(
+                  'Tidak ada data pengeluaran',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ),
             ],
-
-            if (spots.isNotEmpty) const Expanded(child: SizedBox()),
           ],
         ),
       ),
