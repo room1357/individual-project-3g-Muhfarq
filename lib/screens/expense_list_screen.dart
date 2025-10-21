@@ -15,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   // 🔹 Daftar halaman untuk setiap tab di bawah
-  final List<Widget> _pages = const [
+  final List<Widget> _pages = [
     DashboardPage(),
     AdvancedExpenseListScreen(),
     CategoryScreen(),

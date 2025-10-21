@@ -15,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   // 🔹 Daftar halaman untuk setiap tab di bawah
-  final List<Widget> _pages = const [
+  final List<Widget> _pages = [
     DashboardPage(),
     AdvancedExpenseListScreen(),
     CategoryScreen(),
@@ -35,10 +35,10 @@ class _HomeScreenState extends State<HomeScreen> {
           (_selectedIndex < _pages.length) ? _pages[_selectedIndex] : _pages[0],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFF0B5A3D), 
+        backgroundColor: const Color(0xFF0B5A3D),
         currentIndex: _selectedIndex,
-        selectedItemColor: const Color(0xFF1DC981), 
-        unselectedItemColor: const Color(0xFFABEFCA), 
+        selectedItemColor: const Color(0xFF1DC981),
+        unselectedItemColor: const Color(0xFFABEFCA),
         showUnselectedLabels: true,
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
         onTap: _onItemTapped,

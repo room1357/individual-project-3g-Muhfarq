@@ -67,7 +67,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     final categories = CategoryManager.categories;
 
     return Scaffold(
-      backgroundColor: paleGreen, // 🍃 Soft green background
+      backgroundColor: paleGreen,
       appBar: AppBar(
         backgroundColor: darkGreen,
         title: const Text(
@@ -138,7 +138,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         itemBuilder: (context, index) {
                           final category = categories[index];
                           return Card(
-                            color: lightGreen,
+                            color: Colors.white,
                             margin: const EdgeInsets.symmetric(
                               vertical: 6,
                               horizontal: 2,

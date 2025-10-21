@@ -174,8 +174,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
                         return Container(
                           margin: const EdgeInsets.symmetric(vertical: 6),
                           decoration: BoxDecoration(
-                            color:
-                                extraLightGreen, // 🌿 lebih muda dari lightGreen
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
