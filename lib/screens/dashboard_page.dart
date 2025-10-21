@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:pemrograman_mobile/controllers/login_controller.dart';
 import 'package:pemrograman_mobile/screens/login_screen.dart';
 import 'package:pemrograman_mobile/screens/pengaturan_screen.dart';
 import 'package:pemrograman_mobile/screens/profile_screen.dart';
 import '../managers/expense_manager.dart';
 
 class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key});
+  DashboardPage({super.key});
+
+  final LoginController _loginController = LoginController();
 
   double _calculateTotal() {
     return ExpenseManager.expenses.fold(
@@ -33,15 +36,16 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _buildDrawer(BuildContext context) {
+    final user = _loginController.currentUser;
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const UserAccountsDrawerHeader(
-            decoration: BoxDecoration(color: Color(0xFF1DC981)),
-            accountName: Text("Nama Pengguna"),
-            accountEmail: Text("email@example.com"),
-            currentAccountPicture: CircleAvatar(
+          UserAccountsDrawerHeader(
+            decoration: const BoxDecoration(color: Color(0xFF1DC981)),
+            accountName: Text(user?.fullName ?? "Nama Pengguna"),
+            accountEmail: Text(user?.email ?? "email@example.com"),
+            currentAccountPicture: const CircleAvatar(
               backgroundColor: Colors.white,
               child: Icon(Icons.person, color: Color(0xFF1DC981)),
             ),
@@ -52,7 +56,7 @@ class DashboardPage extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                MaterialPageRoute(builder: (context) => ProfileScreen()),
               );
             },
           ),
@@ -73,6 +77,7 @@ class DashboardPage extends StatelessWidget {
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text("Logout", style: TextStyle(color: Colors.red)),
             onTap: () {
+              _loginController.logout();
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
