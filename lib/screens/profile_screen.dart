@@ -84,7 +84,7 @@ class ProfileScreen extends StatelessWidget {
                         Text("Fitur Edit Profil belum tersedia"),
                       ],
                     ),
-                    duration: Duration(seconds: 3),
+                    duration: const Duration(seconds: 3),
                   ),
                 );
               },
