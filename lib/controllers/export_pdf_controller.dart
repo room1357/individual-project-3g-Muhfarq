@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -55,7 +56,7 @@ class ExportPdfController {
                 pw.SizedBox(height: 10),
                 pw.Text(
                   'Dibuat pada: ${DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now())}',
-                  style: pw.TextStyle(fontSize: 12, color: PdfColors.grey600),
+                  style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey600),
                 ),
                 pw.Divider(),
                 pw.SizedBox(height: 16),
@@ -134,43 +135,123 @@ class ExportPdfController {
           if (subtitle != null)
             pw.Text(
               subtitle,
-              style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+              style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
             ),
         ],
       ),
     );
   }
 
-  // 🔹 Aksi export
-  Future<void> handleAction(String type) async {
+  // 🔹 Aksi export dengan parameter BuildContext
+  Future<void> handleAction(String type, BuildContext context) async {
     final pdf = await generatePdf();
     final bytes = await pdf.save();
     final fileName =
         'laporan-pengeluaran-${DateFormat('yyyy-MM-dd').format(DateTime.now())}.pdf';
 
-    switch (type) {
-      case 'preview': // ✅ Preview PDF
-        await Printing.layoutPdf(onLayout: (_) async => bytes);
-        break;
+    try {
+      switch (type) {
+        case 'preview': // ✅ Preview PDF
+          await Printing.layoutPdf(onLayout: (_) async => bytes);
+          break;
 
-      case 'print': // ✅ Cetak PDF
-        await Printing.layoutPdf(onLayout: (_) async => bytes);
-        break;
+        case 'print': // ✅ Cetak PDF
+          await Printing.layoutPdf(onLayout: (_) async => bytes);
+          break;
 
-      case 'share': // ✅ Bagikan PDF
-        await Printing.sharePdf(bytes: bytes, filename: fileName);
-        break;
+        case 'share': // ✅ Bagikan PDF
+          await Printing.sharePdf(bytes: bytes, filename: fileName);
+          break;
 
-      case 'download': // ✅ Unduh PDF ke folder Downloads
-        final directory = await getDownloadsDirectory();
-        final path = '${directory!.path}/$fileName';
-        final file = File(path);
-        await file.writeAsBytes(bytes);
-        print('✅ PDF disimpan di: $path');
-        break;
+        case 'download': // ✅ Unduh PDF ke folder Downloads
+          final directory = await getDownloadsDirectory();
+          final path = '${directory!.path}/$fileName';
+          final file = File(path);
+          await file.writeAsBytes(bytes);
 
-      default:
-        print("⚠️ Aksi '$type' tidak dikenali");
+          // Tampilkan Snackbar sukses
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                backgroundColor: const Color(0xFF1DC981), // Hijau sukses
+                content: Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.white),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'PDF berhasil disimpan di: $path',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+          break;
+
+        default:
+          // Tampilkan Snackbar untuk aksi tidak dikenali
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                backgroundColor: Colors.orange,
+                content: Row(
+                  children: [
+                    const Icon(Icons.warning, color: Colors.white),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        "Aksi '$type' tidak dikenali",
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+      }
+    } catch (e) {
+      // Tampilkan Snackbar error
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            backgroundColor: Colors.redAccent,
+            content: Row(
+              children: [
+                const Icon(Icons.error, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Gagal: ${e.toString()}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
     }
   }
 }
