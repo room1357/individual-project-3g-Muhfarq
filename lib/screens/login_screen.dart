@@ -10,48 +10,107 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
+enum LoginState { initial, loading, success, error }
+
 class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _loginController = LoginController();
 
   bool _obscurePassword = true;
+  LoginState _loginState = LoginState.initial;
+  String _errorMessage = '';
 
-  void _handleLogin() {
+  void _handleLogin() async {
+    if (_loginState == LoginState.loading) return;
+
+    setState(() {
+      _loginState = LoginState.loading;
+      _errorMessage = '';
+    });
+
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
 
-    final user = _loginController.login(username, password);
+    try {
+      final user = await _loginController.login(username, password);
 
-    if (user != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: Colors.redAccent,
-          content: const Row(
-            children: [
-              Icon(Icons.error, color: Colors.white),
-              SizedBox(width: 12),
-              Text("Username atau password salah"),
-            ],
-          ),
-          duration: Duration(seconds: 3),
-        ),
-      );
+      if (user != null) {
+        setState(() {
+          _loginState = LoginState.success;
+        });
+
+        // Navigasi setelah state update
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        });
+      } else {
+        setState(() {
+          _loginState = LoginState.error;
+          _errorMessage = "Username atau password salah";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _loginState = LoginState.error;
+        _errorMessage = "Terjadi kesalahan: $e";
+      });
     }
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Setup listener untuk error state
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_loginState == LoginState.error && _errorMessage.isNotEmpty) {
+        _showErrorSnackBar();
+      }
+    });
+  }
+
+  void _showErrorSnackBar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: Colors.redAccent,
+        content: Row(
+          children: [
+            const Icon(Icons.error, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(_errorMessage, style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+    // Reset error state setelah menampilkan snackbar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = '';
+          _loginState = LoginState.initial;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Tampilkan snackbar ketika ada error
+    if (_loginState == LoginState.error && _errorMessage.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showErrorSnackBar();
+      });
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFDCFDEB),
       body: Center(
@@ -63,18 +122,6 @@ class _LoginScreenState extends State<LoginScreen> {
               // 🔹 Logo
               Image.asset('assets/images/Logo.png', width: 100, height: 100),
               const SizedBox(height: 24),
-
-              // 🔹 Nama Aplikasi
-              // const Text(
-              //   'S a k u K u',
-              //   style: TextStyle(
-              //     color: Color.fromARGB(255, 34, 175, 97),
-              //     fontSize: 28,
-              //     fontWeight: FontWeight.w600,
-              //     letterSpacing: 2,
-              //   ),
-              // ),
-              // const SizedBox(height: 8),
 
               // 🔹 Slogan
               const Text(
@@ -94,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: const TextStyle(color: Color(0xFF0B5A3D)),
                 decoration: InputDecoration(
                   hintText: 'Username',
-                  hintStyle: const TextStyle(color: Color(0xFFDCFDEB)),
+                  hintStyle: const TextStyle(color: Color(0xFF1DC981)),
                   filled: true,
                   fillColor: const Color(0xFFABEFCA),
                   contentPadding: const EdgeInsets.symmetric(
@@ -116,7 +163,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: const TextStyle(color: Color(0xFF0B5A3D)),
                 decoration: InputDecoration(
                   hintText: 'Password',
-                  hintStyle: const TextStyle(color: Color(0xFFDCFDEB)),
+                  hintStyle: const TextStyle(
+                    color: Color(0xFF1DC981),
+                  ), // Diperbaiki warnanya
                   filled: true,
                   fillColor: const Color(0xFFABEFCA),
                   contentPadding: const EdgeInsets.symmetric(
@@ -132,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       _obscurePassword
                           ? Icons.visibility_off
                           : Icons.visibility,
-                      color: const Color(0xFFDCFDEB),
+                      color: const Color(0xFF0B5A3D), // Diperbaiki warnanya
                     ),
                     onPressed: () {
                       setState(() {
@@ -148,7 +197,8 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _handleLogin,
+                  onPressed:
+                      _loginState == LoginState.loading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1DC981),
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -156,14 +206,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child:
+                      _loginState == LoginState.loading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                          : const Text(
+                            'Login',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -177,14 +239,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(color: Color(0xFF0B5A3D)),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RegisterScreen(),
-                        ),
-                      );
-                    },
+                    onTap:
+                        _loginState == LoginState.loading
+                            ? null
+                            : () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RegisterScreen(),
+                                ),
+                              );
+                            },
                     child: const Text(
                       'Akun Barumu',
                       style: TextStyle(
