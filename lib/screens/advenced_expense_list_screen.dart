@@ -70,7 +70,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
                     'Total Pengeluaran Kamu',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -96,7 +96,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: darkGreen.withOpacity(0.1),
+                    color: darkGreen.withValues(alpha: 0.1),
                     blurRadius: 6,
                     offset: const Offset(0, 3),
                   ),
@@ -178,7 +178,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: darkGreen.withOpacity(0.08),
+                                color: darkGreen.withValues(alpha: 0.08),
                                 blurRadius: 5,
                                 offset: const Offset(0, 2),
                               ),
@@ -208,7 +208,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
                             subtitle: Text(
                               '${expense.category} • ${expense.formattedDate}',
                               style: TextStyle(
-                                color: darkGreen.withOpacity(0.7),
+                                color: darkGreen.withValues(alpha: 0.7),
                               ),
                             ),
                             trailing: Text(

@@ -146,7 +146,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       style: TextStyle(color: darkGreen, fontWeight: FontWeight.w500),
       decoration: InputDecoration(
         hintText: label,
-        hintStyle: TextStyle(color: darkGreen.withOpacity(0.6)),
+        hintStyle: TextStyle(color: darkGreen.withValues(alpha: 0.6)),
         filled: true,
         fillColor: lightBox,
         border: OutlineInputBorder(
@@ -164,7 +164,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   // 🔹 Dropdown field lembut
   Widget _buildDropdownField() {
     return DropdownButtonFormField<Category>(
-      value: _selectedCategory,
+      initialValue: _selectedCategory,
       items:
           CategoryManager.categories
               .map(
@@ -187,7 +187,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       },
       decoration: InputDecoration(
         hintText: 'Pilih kategori',
-        hintStyle: TextStyle(color: darkGreen.withOpacity(0.6)),
+        hintStyle: TextStyle(color: darkGreen.withValues(alpha: 0.6)),
         filled: true,
         fillColor: lightBox,
         border: OutlineInputBorder(

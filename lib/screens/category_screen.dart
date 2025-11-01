@@ -84,7 +84,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             // 🔹 Input tambah kategori
             Container(
               decoration: BoxDecoration(
-                color: lightGreen.withOpacity(0.7),
+                color: lightGreen.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
