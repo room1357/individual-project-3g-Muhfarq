@@ -10,7 +10,7 @@ import 'package:pemrograman_mobile/main.dart';
 
 void main() {
   testWidgets('App loads login screen', (WidgetTester tester) async {
-    await tester.pumpWidget(MyApp());
+    await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
 
     // Pastikan teks di LoginScreen tampil
