@@ -15,6 +15,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // tunggu 3 detik lalu pindah ke LoginScreen
     Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
@@ -27,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/splash - 1.png'),
             fit: BoxFit.cover, // atau BoxFit.fill
