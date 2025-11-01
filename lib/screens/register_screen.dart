@@ -76,7 +76,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFDCFDEB), // 🌿 background lembut
+      backgroundColor: const Color(0xFFDCFDEB),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 60),
         child: Column(
@@ -199,10 +199,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       style: const TextStyle(color: Color(0xFF0B5A3D)),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFFDCFDEB)),
+        hintStyle: const TextStyle(color: Color(0xFF1DC981)),
         filled: true,
         fillColor: const Color(0xFFABEFCA),
-        prefixIcon: Icon(icon, color: const Color(0xFFDCFDEB)),
+        prefixIcon: Icon(icon, color: const Color(0xFF1DC981)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
@@ -227,16 +227,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       obscureText: isMain ? _obscurePassword : _obscureConfirmPassword,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFFDCFDEB)),
+        hintStyle: const TextStyle(color: Color(0xFF1DC981)),
         filled: true,
         fillColor: const Color(0xFFABEFCA),
-        prefixIcon: const Icon(Icons.lock, color: Color(0xFFDCFDEB)),
+        prefixIcon: const Icon(Icons.lock, color: Color(0xFF1DC981)),
         suffixIcon: IconButton(
           icon: Icon(
             (isMain ? _obscurePassword : _obscureConfirmPassword)
                 ? Icons.visibility_off
                 : Icons.visibility,
-            color: const Color(0xFFDCFDEB),
+            color: const Color(0xFF0B5A3D),
           ),
           onPressed: () {
             setState(() {
