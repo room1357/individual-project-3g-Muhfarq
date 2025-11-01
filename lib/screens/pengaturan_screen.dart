@@ -42,7 +42,7 @@ class PengaturanScreen extends StatelessWidget {
                 ),
               ),
               trailing: Switch(
-                activeColor: const Color(0xFF1DC981),
+                activeThumbColor: const Color(0xFF1DC981),
                 value: Theme.of(context).brightness == Brightness.dark,
                 onChanged: (bool value) {
                   if (value) {
