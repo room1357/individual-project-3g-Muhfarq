@@ -47,7 +47,7 @@ class _MyAppState extends State<MyApp> {
       themeMode: _themeMode,
 
       // Halaman awal: splash screen
-      home: SplashScreen(),
+      home: const SplashScreen(),
 
       // Routes
       routes: {
