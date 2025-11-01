@@ -17,9 +17,9 @@ class _HomeScreenState extends State<HomeScreen> {
   // 🔹 Daftar halaman untuk setiap tab di bawah
   final List<Widget> _pages = [
     DashboardPage(),
-    AdvancedExpenseListScreen(),
-    CategoryScreen(),
-    ExportPdfScreen(),
+    const AdvancedExpenseListScreen(),
+    const CategoryScreen(),
+    const ExportPdfScreen(),
   ];
 
   void _onItemTapped(int index) {
