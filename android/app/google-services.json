@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "587874062713",
+    "project_id": "expense-manager-2025-1d1db",
+    "storage_bucket": "expense-manager-2025-1d1db.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:587874062713:android:51849ea9ebe76a62efdfa8",
+        "android_client_info": {
+          "package_name": "com.example.pemrograman_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPiKc0xjZhKBuQc2CogKKlOfP7ZX6opYM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
