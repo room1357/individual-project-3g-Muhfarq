@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
-import '../controllers/login_controller.dart';
-import '../models/user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfileScreen extends StatelessWidget {
-  ProfileScreen({super.key});
-
-  // Ambil singleton LoginController
-  final LoginController _loginController = LoginController();
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Ambil user yang sedang login
-    final User? user = _loginController.currentUser;
+    // Ambil user dari Firebase
+    final User? user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       backgroundColor: const Color(0xFFDCFDEB),
@@ -28,7 +24,7 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Foto profil
+            // 🔹 Foto profil (placeholder)
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -47,9 +43,9 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Nama (ambil dari user login)
+            // 🔹 Nama pengguna (ambil dari Firebase)
             Text(
-              user?.fullName ?? "Nama Pengguna",
+              user?.displayName ?? "Nama Pengguna",
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -58,7 +54,7 @@ class ProfileScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
 
-            // Email (ambil dari user login)
+            // 🔹 Email pengguna
             Text(
               user?.email ?? "Email tidak tersedia",
               style: const TextStyle(fontSize: 16, color: Color(0xFF1DC981)),
@@ -66,7 +62,7 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            // Tombol Edit Profil (dummy)
+            // 🔹 Tombol Edit Profil (belum aktif)
             ElevatedButton.icon(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -79,9 +75,12 @@ class ProfileScreen extends StatelessWidget {
                     backgroundColor: Colors.green,
                     content: const Row(
                       children: [
-                        Icon(Icons.error, color: Colors.greenAccent),
+                        Icon(Icons.info, color: Colors.white),
                         SizedBox(width: 12),
-                        Text("Fitur Edit Profil belum tersedia"),
+                        Text(
+                          "Fitur Edit Profil belum tersedia",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ],
                     ),
                     duration: const Duration(seconds: 3),
@@ -98,7 +97,6 @@ class ProfileScreen extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                elevation: 3,
               ),
               icon: const Icon(Icons.edit),
               label: const Text(

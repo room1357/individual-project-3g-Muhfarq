@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pemrograman_mobile/controllers/register_controller.dart';
 import 'package:pemrograman_mobile/screens/login_screen.dart';
-import '../controllers/register_controller.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,7 +13,6 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -20,37 +20,68 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isLoading = false;
 
-  void _handleRegister() {
+  Future<void> _handleRegister() async {
     final fullName = _fullNameController.text.trim();
     final email = _emailController.text.trim();
-    final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
 
-    if (password != confirmPassword) {
-      _showSnackBar("Password dan konfirmasi belum sesuai", Colors.redAccent);
+    // 🔹 Validasi field
+    if (fullName.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
+      _showSnackBar("Semua field harus diisi!", Colors.redAccent);
       return;
     }
 
-    final success = _registerController.register(
-      username,
-      password,
-      email: email,
-      fullName: fullName,
-    );
+    if (password != confirmPassword) {
+      _showSnackBar("Password dan konfirmasi tidak cocok", Colors.redAccent);
+      return;
+    }
 
-    if (success) {
-      _showSnackBar(
-        "Akun berhasil dibuat! Silakan login.",
-        const Color(0xFF1DC981),
+    setState(() => _isLoading = true);
+
+    try {
+      await _registerController.register(
+        email: email,
+        password: password,
+        fullName: fullName,
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
-    } else {
-      _showSnackBar("Username sudah digunakan", Colors.redAccent);
+
+      if (mounted) {
+        _showSnackBar(
+          "Akun berhasil dibuat! Silakan login.",
+          const Color(0xFF1DC981),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      // 🔹 Menangani error spesifik dari Firebase
+      String errorMsg;
+      switch (e.code) {
+        case 'email-already-in-use':
+          errorMsg = 'Email sudah digunakan akun lain.';
+          break;
+        case 'invalid-email':
+          errorMsg = 'Format email tidak valid.';
+          break;
+        case 'weak-password':
+          errorMsg = 'Password terlalu lemah.';
+          break;
+        default:
+          errorMsg = e.message ?? 'Terjadi kesalahan.';
+      }
+      _showSnackBar(errorMsg, Colors.redAccent);
+    } catch (e) {
+      _showSnackBar("Terjadi kesalahan: $e", Colors.redAccent);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -65,10 +96,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
           children: [
             const Icon(Icons.info_outline, color: Colors.white),
             const SizedBox(width: 12),
-            Text(message, style: const TextStyle(color: Colors.white)),
+            Expanded(
+              child: Text(message, style: const TextStyle(color: Colors.white)),
+            ),
           ],
         ),
-        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -86,19 +118,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Image.asset('assets/images/Logo.png', width: 100, height: 100),
             const SizedBox(height: 16),
 
-            // 🔹 Title
-            // const Text(
-            //   "S a k u K u",
-            //   style: TextStyle(
-            //     fontSize: 26,
-            //     color: Color(0xFF0B5A3D),
-            //     fontWeight: FontWeight.w600,
-            //     letterSpacing: 2,
-            //   ),
-            // ),
-            // const SizedBox(height: 8),
-
-            // 🔹 Subtitle
             const Text(
               "“Kelola keuanganmu dengan tenang,\nbersama SakuKu.”",
               textAlign: TextAlign.center,
@@ -110,14 +129,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 32),
 
-            // 🔹 Input Fields
-            _buildTextField(_fullNameController, "Fullname", Icons.person),
-            const SizedBox(height: 12),
-            _buildTextField(
-              _usernameController,
-              "Username",
-              Icons.account_circle,
-            ),
+            _buildTextField(_fullNameController, "Full Name", Icons.person),
             const SizedBox(height: 12),
             _buildTextField(_emailController, "Email", Icons.email),
             const SizedBox(height: 12),
@@ -130,32 +142,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 24),
 
-            // 🔹 Register Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _handleRegister,
+                onPressed: _isLoading ? null : _handleRegister,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1DC981),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  elevation: 0,
                 ),
-                child: const Text(
-                  "Register",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
+                child:
+                    _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                          "Register",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
               ),
             ),
             const SizedBox(height: 16),
 
-            // 🔹 Login Link
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -188,7 +200,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // 🔹 Widget TextField Custom
   Widget _buildTextField(
     TextEditingController controller,
     String hint,
@@ -207,15 +218,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 14,
-          horizontal: 16,
-        ),
       ),
     );
   }
 
-  // 🔹 Widget Password Field Custom
   Widget _buildPasswordField(
     TextEditingController controller,
     String hint,
@@ -223,8 +229,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   ) {
     return TextField(
       controller: controller,
-      style: const TextStyle(color: Color(0xFF0B5A3D)),
       obscureText: isMain ? _obscurePassword : _obscureConfirmPassword,
+      style: const TextStyle(color: Color(0xFF0B5A3D)),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(color: Color(0xFF1DC981)),
@@ -251,10 +257,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 14,
-          horizontal: 16,
         ),
       ),
     );

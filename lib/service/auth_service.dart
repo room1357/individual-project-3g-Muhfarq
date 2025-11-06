@@ -1,51 +1,64 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/user.dart';
 import 'dart:convert';
 
 class AuthService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   static const String _keyUser = 'current_user';
   static const String _keyIsLoggedIn = 'is_logged_in';
 
-  // Simpan user ke SharedPreferences (tanpa password)
-  Future<void> saveUser(User user) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString(
-      _keyUser,
-      jsonEncode({
-        'username': user.username,
-        'email': user.email,
-        'fullName': user.fullName,
-        // Jangan simpan password!
-      }),
-    );
-    prefs.setBool(_keyIsLoggedIn, true);
+  // Register
+  Future<User?> register(String email, String password, String fullName) async {
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Simpan data lokal
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString(
+        _keyUser,
+        jsonEncode({'email': email, 'fullName': fullName}),
+      );
+      prefs.setBool(_keyIsLoggedIn, true);
+
+      return credential.user;
+    } catch (e) {
+      print('Register error: $e');
+      return null;
+    }
   }
 
-  // Ambil user yang tersimpan
-  Future<User?> getUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString(_keyUser);
-    if (jsonString == null) return null;
+  // Login
+  Future<User?> login(String email, String password) async {
+    try {
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    final data = jsonDecode(jsonString);
-    return User(
-      username: data['username'],
-      password: '', // Kosongkan password
-      email: data['email'],
-      fullName: data['fullName'],
-    );
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString(_keyUser, jsonEncode({'email': email}));
+      prefs.setBool(_keyIsLoggedIn, true);
+
+      return credential.user;
+    } catch (e) {
+      print('Login error: $e');
+      return null;
+    }
+  }
+
+  // Logout
+  Future<void> logout() async {
+    await _auth.signOut();
+    final prefs = await SharedPreferences.getInstance();
+    prefs.clear();
   }
 
   // Cek status login
   Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_keyIsLoggedIn) ?? false;
-  }
-
-  // Hapus user (logout)
-  Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove(_keyUser);
-    prefs.setBool(_keyIsLoggedIn, false);
   }
 }

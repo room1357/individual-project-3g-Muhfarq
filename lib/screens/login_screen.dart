@@ -13,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 enum LoginState { initial, loading, success, error }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController(); // ✅ ubah ke email
   final _passwordController = TextEditingController();
   final _loginController = LoginController();
 
@@ -29,18 +29,15 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = '';
     });
 
-    final username = _usernameController.text.trim();
+    final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
     try {
-      final user = await _loginController.login(username, password);
+      final user = await _loginController.login(email, password);
 
       if (user != null) {
-        setState(() {
-          _loginState = LoginState.success;
-        });
+        setState(() => _loginState = LoginState.success);
 
-        // Navigasi setelah state update
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.pushReplacement(
             context,
@@ -50,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         setState(() {
           _loginState = LoginState.error;
-          _errorMessage = "Username atau password salah";
+          _errorMessage = "Email atau password salah";
         });
       }
     } catch (e) {
@@ -64,7 +61,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Setup listener untuk error state
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_loginState == LoginState.error && _errorMessage.isNotEmpty) {
         _showErrorSnackBar();
@@ -84,14 +80,17 @@ class _LoginScreenState extends State<LoginScreen> {
             const Icon(Icons.error, color: Colors.white),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(_errorMessage, style: const TextStyle(color: Colors.white)),
+              child: Text(
+                _errorMessage,
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
         duration: const Duration(seconds: 3),
       ),
     );
-    // Reset error state setelah menampilkan snackbar
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         setState(() {
@@ -104,7 +103,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Tampilkan snackbar ketika ada error
     if (_loginState == LoginState.error && _errorMessage.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showErrorSnackBar();
@@ -119,11 +117,8 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 🔹 Logo
               Image.asset('assets/images/Logo.png', width: 100, height: 100),
               const SizedBox(height: 24),
-
-              // 🔹 Slogan
               const Text(
                 '“Kelola keuanganmu dengan tenang,\nbersama SakuKu.”',
                 textAlign: TextAlign.center,
@@ -135,12 +130,13 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 32),
 
-              // 🔹 Username
+              // 🔹 Email
               TextField(
-                controller: _usernameController,
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
                 style: const TextStyle(color: Color(0xFF0B5A3D)),
                 decoration: InputDecoration(
-                  hintText: 'Username',
+                  hintText: 'Email',
                   hintStyle: const TextStyle(color: Color(0xFF1DC981)),
                   filled: true,
                   fillColor: const Color(0xFFABEFCA),
@@ -163,9 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: const TextStyle(color: Color(0xFF0B5A3D)),
                 decoration: InputDecoration(
                   hintText: 'Password',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFF1DC981),
-                  ), // Diperbaiki warnanya
+                  hintStyle: const TextStyle(color: Color(0xFF1DC981)),
                   filled: true,
                   fillColor: const Color(0xFFABEFCA),
                   contentPadding: const EdgeInsets.symmetric(
@@ -181,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       _obscurePassword
                           ? Icons.visibility_off
                           : Icons.visibility,
-                      color: const Color(0xFF0B5A3D), // Diperbaiki warnanya
+                      color: const Color(0xFF0B5A3D),
                     ),
                     onPressed: () {
                       setState(() {

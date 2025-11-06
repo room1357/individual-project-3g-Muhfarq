@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:pemrograman_mobile/controllers/login_controller.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pemrograman_mobile/screens/login_screen.dart';
 import 'package:pemrograman_mobile/screens/pengaturan_screen.dart';
 import 'package:pemrograman_mobile/screens/profile_screen.dart';
@@ -9,7 +9,7 @@ import '../managers/expense_manager.dart';
 class DashboardPage extends StatelessWidget {
   DashboardPage({super.key});
 
-  final LoginController _loginController = LoginController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   double _calculateTotal() {
     return ExpenseManager.expenses.fold(
@@ -36,14 +36,15 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _buildDrawer(BuildContext context) {
-    final user = _loginController.currentUser;
+    final user = _auth.currentUser;
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
             decoration: const BoxDecoration(color: Color(0xFF1DC981)),
-            accountName: Text(user?.fullName ?? "Nama Pengguna"),
+            accountName: Text(user?.displayName ?? "Nama Pengguna"),
             accountEmail: Text(user?.email ?? "email@example.com"),
             currentAccountPicture: const CircleAvatar(
               backgroundColor: Colors.white,
@@ -76,8 +77,8 @@ class DashboardPage extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text("Logout", style: TextStyle(color: Colors.red)),
-            onTap: () {
-              _loginController.logout();
+            onTap: () async {
+              await _auth.signOut(); // 🔥 logout Firebase
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginScreen()),

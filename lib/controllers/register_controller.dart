@@ -1,42 +1,43 @@
-import '../models/user.dart';
-import 'package:collection/collection.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:logger/logger.dart';
 
 class RegisterController {
-  //singleton instance
   static final RegisterController _instance = RegisterController._internal();
   factory RegisterController() => _instance;
   RegisterController._internal();
 
-  final List<User> _registeredUsers = [];
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final Logger _logger = Logger();
 
-  List<User> get users => List.unmodifiable(_registeredUsers);
-
-  //fungsi
-  bool register(
-    String username,
-    String password, {
-    String? email,
+  Future<UserCredential?> register({
+    required String email,
+    required String password,
     String? fullName,
-  }) {
-    final exists = _registeredUsers.any((u) => u.username == username);
-    if (exists) return false;
-
-    _registeredUsers.add(
-      User(
-        username: username,
-        password: password,
+  }) async {
+    try {
+      UserCredential credential = await _auth.createUserWithEmailAndPassword(
         email: email,
-        fullName: fullName,
-      ),
-    );
-    return true;
-  }
+        password: password,
+      );
 
-  User? findUser(String username) {
-    return _registeredUsers.where((u) => u.username == username).firstOrNull;
-  }
+      // Update displayName jika ada
+      if (fullName != null && fullName.isNotEmpty) {
+        await credential.user?.updateDisplayName(fullName);
+        _logger.i('Display name updated for ${credential.user?.email}');
+      }
 
-  void clearUsers() {
-    _registeredUsers.clear();
+      _logger.i('User registered successfully: ${credential.user?.uid}');
+      return credential;
+    } on FirebaseAuthException catch (e) {
+      _logger.e('Firebase Auth Error: ${e.code} - ${e.message}');
+      rethrow;
+    } catch (e, stackTrace) {
+      _logger.e(
+        'Unknown error during register',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 }
