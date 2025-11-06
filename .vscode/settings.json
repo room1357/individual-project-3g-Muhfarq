@@ -3,5 +3,6 @@
     "dart.hotReloadOnSave": "all",
     "files.autoSave": "afterDelay",
     "files.autoSaveDelay": 50,
-    "dart.flutterGenerateLocalizationsOnSave": "all"
+    "dart.flutterGenerateLocalizationsOnSave": "all",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
