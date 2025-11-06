@@ -1,13 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:logger/logger.dart';
 import 'dart:convert';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   static const String _keyUser = 'current_user';
   static const String _keyIsLoggedIn = 'is_logged_in';
+  final Logger _logger = Logger(); // 🔹 inisialisasi logger
 
-  // Register
+  // 🔹 Register user baru
   Future<User?> register(String email, String password, String fullName) async {
     try {
       final credential = await _auth.createUserWithEmailAndPassword(
@@ -15,22 +17,31 @@ class AuthService {
         password: password,
       );
 
-      // Simpan data lokal
+      // Simpan nama ke profil Firebase (displayName)
+      await credential.user?.updateDisplayName(fullName);
+
+      // Simpan ke SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      prefs.setString(
+      await prefs.setString(
         _keyUser,
         jsonEncode({'email': email, 'fullName': fullName}),
       );
-      prefs.setBool(_keyIsLoggedIn, true);
+      await prefs.setBool(_keyIsLoggedIn, true);
 
+      _logger.i('✅ Register berhasil untuk $email');
       return credential.user;
+    } on FirebaseAuthException catch (e) {
+      _logger.e(
+        '⚠️ FirebaseAuthException saat register: ${e.code} - ${e.message}',
+      );
+      return null;
     } catch (e) {
-      print('Register error: $e');
+      _logger.e('❌ Error tak terduga saat register: $e');
       return null;
     }
   }
 
-  // Login
+  // 🔹 Login user
   Future<User?> login(String email, String password) async {
     try {
       final credential = await _auth.signInWithEmailAndPassword(
@@ -39,26 +50,39 @@ class AuthService {
       );
 
       final prefs = await SharedPreferences.getInstance();
-      prefs.setString(_keyUser, jsonEncode({'email': email}));
-      prefs.setBool(_keyIsLoggedIn, true);
+      await prefs.setString(_keyUser, jsonEncode({'email': email}));
+      await prefs.setBool(_keyIsLoggedIn, true);
 
+      _logger.i('✅ Login berhasil untuk $email');
       return credential.user;
+    } on FirebaseAuthException catch (e) {
+      _logger.e(
+        '⚠️ FirebaseAuthException saat login: ${e.code} - ${e.message}',
+      );
+      return null;
     } catch (e) {
-      print('Login error: $e');
+      _logger.e('❌ Error tak terduga saat login: $e');
       return null;
     }
   }
 
-  // Logout
+  // 🔹 Logout user
   Future<void> logout() async {
-    await _auth.signOut();
-    final prefs = await SharedPreferences.getInstance();
-    prefs.clear();
+    try {
+      await _auth.signOut();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      _logger.i('👋 User berhasil logout');
+    } catch (e) {
+      _logger.e('❌ Gagal logout: $e');
+    }
   }
 
-  // Cek status login
+  // 🔹 Cek status login
   Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_keyIsLoggedIn) ?? false;
+    final loggedIn = prefs.getBool(_keyIsLoggedIn) ?? false;
+    _logger.d('🔍 Status login: $loggedIn');
+    return loggedIn;
   }
 }
