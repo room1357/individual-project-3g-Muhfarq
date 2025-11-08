@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/expense.dart';
-import '../managers/expense_manager.dart';
 import '../managers/category_manager.dart';
 import '../models/category.dart';
-import 'package:uuid/uuid.dart';
+// import 'package:uuid/uuid.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _AddExpenseScreenState createState() => _AddExpenseScreenState();
 }
 
@@ -22,10 +21,13 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   Category? _selectedCategory;
   DateTime _selectedDate = DateTime.now();
 
-  // 🎨 Warna sesuai tema
+  // 🔹 Firestore reference
+  final _firestore = FirebaseFirestore.instance.collection('expenses');
+
+  // 🎨 Tema warna
   final Color darkGreen = const Color(0xFF0B5A3D);
   final Color paleGreen = const Color(0xFFDCFDEB);
-  final Color lightBox = const Color(0xFFE9FFF3); // lebih terang dari bg
+  final Color lightBox = const Color(0xFFE9FFF3);
   final Color brightGreen = const Color(0xFF1DC981);
 
   @override
@@ -36,8 +38,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     }
   }
 
-  void _pickDate() async {
-    DateTime? picked = await showDatePicker(
+  Future<void> _pickDate() async {
+    final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
@@ -51,10 +53,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     }
   }
 
-  void _saveExpense() {
+  Future<void> _saveExpense() async {
     if (_formKey.currentState!.validate()) {
       final newExpense = Expense(
-        id: const Uuid().v4(),
+        id: '',
         title: _titleController.text,
         amount: double.parse(_amountController.text),
         category: _selectedCategory!.name,
@@ -62,7 +64,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         description: _descriptionController.text,
       );
 
-      ExpenseManager.expenses.add(newExpense);
+      await _firestore.add(newExpense.toMap());
       Navigator.pop(context);
     }
   }
@@ -131,7 +133,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     );
   }
 
-  // 🔹 Input field lembut tanpa border
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -162,10 +163,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     );
   }
 
-  // 🔹 Dropdown field lembut
   Widget _buildDropdownField() {
     return DropdownButtonFormField<Category>(
-      initialValue: _selectedCategory,
+      value: _selectedCategory,
       items:
           CategoryManager.categories
               .map(
@@ -181,11 +181,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 ),
               )
               .toList(),
-      onChanged: (cat) {
-        setState(() {
-          _selectedCategory = cat;
-        });
-      },
+      onChanged: (cat) => setState(() => _selectedCategory = cat),
       decoration: InputDecoration(
         hintText: 'Pilih kategori',
         hintStyle: TextStyle(color: darkGreen.withValues(alpha: 0.6)),
@@ -204,7 +200,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     );
   }
 
-  // 🔹 Date picker lembut tanpa label dummy
   Widget _buildDatePickerField(BuildContext context) {
     return GestureDetector(
       onTap: _pickDate,
@@ -228,7 +223,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     );
   }
 
-  // 🔹 Tombol simpan
   Widget _buildSaveButton() {
     return ElevatedButton(
       onPressed: _saveExpense,

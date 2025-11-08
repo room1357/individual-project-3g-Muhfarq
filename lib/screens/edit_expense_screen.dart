@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/expense.dart';
-import '../managers/expense_manager.dart';
 import '../managers/category_manager.dart';
 
 class EditExpenseScreen extends StatefulWidget {
@@ -21,10 +21,12 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
   String? _selectedCategory;
   DateTime _selectedDate = DateTime.now();
 
+  final _firestore = FirebaseFirestore.instance.collection('expenses');
+
   // 🎨 Palet warna
   final Color darkGreen = const Color(0xFF0B5A3D);
   final Color paleGreen = const Color(0xFFDCFDEB);
-  final Color lightBox = const Color(0xFFE9FFF3); // lebih terang dari paleGreen
+  final Color lightBox = const Color(0xFFE9FFF3);
   final Color brightGreen = const Color(0xFF1DC981);
 
   @override
@@ -35,7 +37,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
       text: widget.expense.amount.toString(),
     );
     _descriptionController = TextEditingController(
-      text: widget.expense.description,
+      text: widget.expense.description ?? '',
     );
     _selectedCategory = widget.expense.category;
     _selectedDate = widget.expense.date;
@@ -63,22 +65,37 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
     }
   }
 
-  void _saveExpense() {
+  /// 🔹 Simpan ke Firestore
+  Future<void> _saveExpense() async {
     if (_formKey.currentState!.validate()) {
-      final index = ExpenseManager.expenses.indexWhere(
-        (e) => e.id == widget.expense.id,
+      final updatedExpense = Expense(
+        id: widget.expense.id,
+        title: _titleController.text,
+        amount: double.parse(_amountController.text),
+        category: _selectedCategory!,
+        date: _selectedDate,
+        description: _descriptionController.text,
       );
-      if (index != -1) {
-        ExpenseManager.expenses[index] = Expense(
-          id: widget.expense.id,
-          title: _titleController.text,
-          amount: double.parse(_amountController.text),
-          category: _selectedCategory!,
-          date: _selectedDate,
-          description: _descriptionController.text,
+
+      try {
+        await _firestore.doc(updatedExpense.id).update(updatedExpense.toMap());
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Data pengeluaran berhasil diperbarui!"),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Gagal memperbarui data: $e"),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
-      Navigator.pop(context);
     }
   }
 
@@ -146,7 +163,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
     );
   }
 
-  // 🔹 Input Field tanpa border
+  // 🔹 Input Field
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -177,10 +194,10 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
     );
   }
 
-  // 🔹 Dropdown tanpa border
+  // 🔹 Dropdown kategori
   Widget _buildDropdownField() {
     return DropdownButtonFormField<String>(
-      initialValue: _selectedCategory,
+      value: _selectedCategory,
       items:
           CategoryManager.categories
               .map(
@@ -216,7 +233,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
     );
   }
 
-  // 🔹 Date Picker tanpa border dan tanpa text dummy
+  // 🔹 Date Picker
   Widget _buildDatePickerField(BuildContext context) {
     return GestureDetector(
       onTap: () => _selectDate(context),

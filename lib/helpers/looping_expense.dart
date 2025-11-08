@@ -1,14 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/expense.dart';
-import '../managers/expense_manager.dart';
 
 class LoopingExamples {
-  // Ambil langsung dari ExpenseManager
-  static List<Expense> get expenses => ExpenseManager.expenses;
+  // 🔥 Akses ke koleksi Firestore
+  static final _db = FirebaseFirestore.instance.collection('expenses');
 
-  // 1. Menghitung total dengan berbagai cara
+  /// 🔹 Ambil semua data dari Firestore dan hitung total
+  static Future<double> calculateTotalFromFirestore() async {
+    final snapshot = await _db.get();
 
-  // Cara 1: For loop tradisional
-  static double calculateTotalTraditional() {
+    // Konversi dokumen jadi list of Expense
+    final List<Expense> expenses =
+        snapshot.docs.map((doc) => Expense.fromDoc(doc)).toList();
+
+    // Hitung total amount
+    double total = expenses.fold(0.0, (sum, e) => sum + e.amount);
+    return total;
+  }
+
+  // =============================================================
+  // 🔹 Fungsi versi lokal (pakai List<Expense>)
+  // =============================================================
+
+  static double calculateTotalTraditional(List<Expense> expenses) {
     double total = 0;
     for (int i = 0; i < expenses.length; i++) {
       total += expenses[i].amount;
@@ -16,8 +30,7 @@ class LoopingExamples {
     return total;
   }
 
-  // Cara 2: For-in loop
-  static double calculateTotalForIn() {
+  static double calculateTotalForIn(List<Expense> expenses) {
     double total = 0;
     for (Expense expense in expenses) {
       total += expense.amount;
@@ -25,66 +38,57 @@ class LoopingExamples {
     return total;
   }
 
-  // Cara 3: forEach method
-  static double calculateTotalForEach() {
+  static double calculateTotalForEach(List<Expense> expenses) {
     double total = 0;
-    for (var expense in expenses) {
-      total += expense.amount;
-    }
+    expenses.forEach((e) => total += e.amount);
     return total;
   }
 
-  // Cara 4: fold method
-  static double calculateTotalFold() {
-    return expenses.fold(0, (sum, expense) => sum + expense.amount);
+  static double calculateTotalFold(List<Expense> expenses) {
+    return expenses.fold(0, (sum, e) => sum + e.amount);
   }
 
-  // Cara 5: reduce method
-  static double calculateTotalReduce() {
+  static double calculateTotalReduce(List<Expense> expenses) {
     if (expenses.isEmpty) return 0;
     return expenses.map((e) => e.amount).reduce((a, b) => a + b);
   }
 
-  // 2. Mencari item dengan berbagai cara
-
-  // Cara 1: For loop dengan break
-  static Expense? findExpenseTraditional(String id) {
-    for (int i = 0; i < expenses.length; i++) {
-      if (expenses[i].id == id) {
-        return expenses[i];
-      }
+  // 🔹 2. Cari item berdasarkan ID
+  static Expense? findExpenseTraditional(List<Expense> expenses, String id) {
+    for (var e in expenses) {
+      if (e.id == id) return e;
     }
     return null;
   }
 
-  // Cara 2: firstWhere method
-  static Expense? findExpenseWhere(String id) {
+  static Expense? findExpenseWhere(List<Expense> expenses, String id) {
     try {
-      return expenses.firstWhere((expense) => expense.id == id);
-    } catch (e) {
+      return expenses.firstWhere((e) => e.id == id);
+    } catch (_) {
       return null;
     }
   }
 
-  // 3. Filtering dengan berbagai cara
-
-  // Cara 1: Loop manual dengan List.add()
-  static List<Expense> filterByCategoryManual(String category) {
+  // 🔹 3. Filter berdasarkan kategori
+  static List<Expense> filterByCategoryManual(
+    List<Expense> expenses,
+    String category,
+  ) {
     List<Expense> result = [];
-    for (Expense expense in expenses) {
-      if (expense.category.toLowerCase() == category.toLowerCase()) {
-        result.add(expense);
+    for (var e in expenses) {
+      if (e.category.toLowerCase() == category.toLowerCase()) {
+        result.add(e);
       }
     }
     return result;
   }
 
-  // Cara 2: where method
-  static List<Expense> filterByCategoryWhere(String category) {
+  static List<Expense> filterByCategoryWhere(
+    List<Expense> expenses,
+    String category,
+  ) {
     return expenses
-        .where(
-          (expense) => expense.category.toLowerCase() == category.toLowerCase(),
-        )
+        .where((e) => e.category.toLowerCase() == category.toLowerCase())
         .toList();
   }
 }

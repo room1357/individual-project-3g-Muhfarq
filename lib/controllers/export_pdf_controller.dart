@@ -5,15 +5,16 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pemrograman_mobile/managers/expense_manager.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/expense.dart';
 
 class ExportPdfController {
-  // 🔹 Singleton
   static final ExportPdfController _instance = ExportPdfController._internal();
   factory ExportPdfController() => _instance;
   ExportPdfController._internal();
 
-  // 📦 Format Rupiah
+  final _db = FirebaseFirestore.instance.collection('expenses');
+
   String formatCurrency(double amount) => amount
       .toStringAsFixed(0)
       .replaceAllMapped(
@@ -21,85 +22,130 @@ class ExportPdfController {
         (m) => '${m[1]}.',
       );
 
-  // 📅 Format tanggal
   String formatDate(DateTime date) => DateFormat('dd/MM/yyyy').format(date);
 
-  // 🧾 Generate PDF
+  // 🧾 Generate PDF dari Firestore
   Future<pw.Document> generatePdf() async {
     final pdf = pw.Document();
-    final expenses = ExpenseManager.expenses;
 
-    final total = expenses.fold(0.0, (sum, e) => sum + e.amount);
+    // 🔹 Ambil data dari Firestore
+    final snapshot = await _db.orderBy('date', descending: true).get();
+    final expenses = snapshot.docs.map((doc) => Expense.fromDoc(doc)).toList();
+
+    if (expenses.isEmpty) {
+      pdf.addPage(
+        pw.Page(
+          build: (_) => pw.Center(child: pw.Text('Tidak ada data pengeluaran')),
+        ),
+      );
+      return pdf;
+    }
+
+    final total = expenses.fold(0.0, (s, e) => s + e.amount);
     final categoryTotals = <String, double>{};
-
     for (var e in expenses) {
       categoryTotals[e.category] = (categoryTotals[e.category] ?? 0) + e.amount;
     }
 
     pdf.addPage(
-      pw.Page(
+      pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         build:
-            (_) => pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Center(
-                  child: pw.Text(
-                    'LAPORAN PENGELUARAN',
-                    style: pw.TextStyle(
-                      fontSize: 22,
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.blue800,
-                    ),
-                  ),
-                ),
-                pw.SizedBox(height: 10),
-                pw.Text(
-                  'Dibuat pada: ${DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now())}',
-                  style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey600),
-                ),
-                pw.Divider(),
-                pw.SizedBox(height: 16),
-
-                // 🔹 Total ringkasan
-                _sectionBox(
-                  title: 'TOTAL PENGELUARAN',
-                  content: 'Rp ${formatCurrency(total)}',
-                  subtitle: 'Total ${expenses.length} transaksi',
-                  color: PdfColors.blue50,
-                ),
-                pw.SizedBox(height: 20),
-
-                // 🔹 Ringkasan kategori
-                pw.Text(
-                  'Ringkasan per Kategori',
+            (_) => [
+              pw.Center(
+                child: pw.Text(
+                  'LAPORAN PENGELUARAN',
                   style: pw.TextStyle(
-                    fontSize: 16,
+                    fontSize: 22,
                     fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.blue800,
                   ),
                 ),
-                pw.SizedBox(height: 8),
-                ...categoryTotals.entries.map(
-                  (e) => pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pw.Text(e.key),
-                      pw.Text(
-                        'Rp ${formatCurrency(e.value)}',
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                      ),
-                    ],
-                  ),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Text(
+                'Dibuat pada: ${DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now())}',
+                style: const pw.TextStyle(
+                  fontSize: 12,
+                  color: PdfColors.grey600,
                 ),
-              ],
-            ),
+              ),
+              pw.Divider(),
+              pw.SizedBox(height: 16),
+
+              _sectionBox(
+                title: 'TOTAL PENGELUARAN',
+                content: 'Rp ${formatCurrency(total)}',
+                subtitle: 'Total ${expenses.length} transaksi',
+                color: PdfColors.blue50,
+              ),
+              pw.SizedBox(height: 20),
+
+              pw.Text(
+                'Ringkasan per Kategori',
+                style: pw.TextStyle(
+                  fontSize: 16,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 8),
+              ...categoryTotals.entries.map(
+                (e) => pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text(e.key),
+                    pw.Text(
+                      'Rp ${formatCurrency(e.value)}',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              pw.SizedBox(height: 20),
+              pw.Text(
+                'Detail Transaksi',
+                style: pw.TextStyle(
+                  fontSize: 16,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 8),
+              pw.Table.fromTextArray(
+                headers: ['Tanggal', 'Judul', 'Kategori', 'Jumlah'],
+                data:
+                    expenses
+                        .map(
+                          (e) => [
+                            formatDate(e.date),
+                            e.title,
+                            e.category,
+                            'Rp ${formatCurrency(e.amount)}',
+                          ],
+                        )
+                        .toList(),
+                headerStyle: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.white,
+                ),
+                headerDecoration: const pw.BoxDecoration(
+                  color: PdfColors.blue800,
+                ),
+                cellAlignment: pw.Alignment.centerLeft,
+                cellStyle: const pw.TextStyle(fontSize: 10),
+                columnWidths: {
+                  0: const pw.FixedColumnWidth(70),
+                  1: const pw.FixedColumnWidth(100),
+                  2: const pw.FixedColumnWidth(80),
+                  3: const pw.FixedColumnWidth(70),
+                },
+              ),
+            ],
       ),
     );
 
     return pdf;
   }
 
-  // 🔹 Box komponen PDF
   pw.Widget _sectionBox({
     required String title,
     required String content,
@@ -142,7 +188,7 @@ class ExportPdfController {
     );
   }
 
-  // 🔹 Aksi export dengan parameter BuildContext
+  // 🔹 Handle export & snackbar
   Future<void> handleAction(String type, BuildContext context) async {
     final pdf = await generatePdf();
     final bytes = await pdf.save();
@@ -151,104 +197,43 @@ class ExportPdfController {
 
     try {
       switch (type) {
-        case 'preview': // ✅ Preview PDF
+        case 'preview':
           await Printing.layoutPdf(onLayout: (_) async => bytes);
           break;
-
-        case 'print': // ✅ Cetak PDF
+        case 'print':
           await Printing.layoutPdf(onLayout: (_) async => bytes);
           break;
-
-        case 'share': // ✅ Bagikan PDF
+        case 'share':
           await Printing.sharePdf(bytes: bytes, filename: fileName);
           break;
-
-        case 'download': // ✅ Unduh PDF ke folder Downloads
+        case 'download':
           final directory = await getDownloadsDirectory();
           final path = '${directory!.path}/$fileName';
           final file = File(path);
           await file.writeAsBytes(bytes);
 
-          // Tampilkan Snackbar sukses
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                behavior: SnackBarBehavior.floating,
-                margin: const EdgeInsets.all(16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                backgroundColor: const Color(0xFF1DC981), // Hijau sukses
-                content: Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.white),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'PDF berhasil disimpan di: $path',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                duration: const Duration(seconds: 4),
+                content: Text('PDF berhasil disimpan di: $path'),
+                backgroundColor: Colors.green,
               ),
             );
           }
           break;
-
         default:
-          // Tampilkan Snackbar untuk aksi tidak dikenali
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                behavior: SnackBarBehavior.floating,
-                margin: const EdgeInsets.all(16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                backgroundColor: Colors.orange,
-                content: Row(
-                  children: [
-                    const Icon(Icons.warning, color: Colors.white),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        "Aksi '$type' tidak dikenali",
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                duration: const Duration(seconds: 3),
-              ),
+              const SnackBar(content: Text('Aksi tidak dikenali')),
             );
           }
       }
     } catch (e) {
-      // Tampilkan Snackbar error
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.all(16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            content: Text('Gagal: $e'),
             backgroundColor: Colors.redAccent,
-            content: Row(
-              children: [
-                const Icon(Icons.error, color: Colors.white),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Gagal: ${e.toString()}',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-            duration: const Duration(seconds: 4),
           ),
         );
       }

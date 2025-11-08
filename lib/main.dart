@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; 
+import 'firebase_options.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/splash_screen.dart';
 
 void main() async {
-  // Pastikan binding sudah siap sebelum async call
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 🔥 Inisialisasi Firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // Jalankan aplikasi
-  runApp(const MyApp());
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    runApp(const MyApp());
+  } catch (e) {
+    debugPrint('Firebase init error: $e');
+    runApp(
+      const MaterialApp(
+        home: Scaffold(
+          body: Center(child: Text('Gagal inisialisasi Firebase')),
+        ),
+      ),
+    );
+  }
 }
 
 class MyApp extends StatefulWidget {
