@@ -19,7 +19,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
   List<Expense> allExpenses = [];
   List<Expense> filteredExpenses = [];
   String selectedCategory = 'Semua';
-  TextEditingController searchController = TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
   // 🎨 Tema warna
   final Color darkGreen = const Color(0xFF0B5A3D);
@@ -34,34 +34,49 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
     _loadExpenses();
   }
 
-  // 🔹 Ambil data dari Firestore
+  // 🔹 Ambil data awal dari Firestore
   Future<void> _loadExpenses() async {
-    final snapshot = await _firestore.get();
-    final expenses = snapshot.docs.map((doc) => Expense.fromDoc(doc)).toList();
-
-    setState(() {
-      allExpenses = expenses;
-      filteredExpenses = expenses;
-    });
+    try {
+      final snapshot = await _firestore.get();
+      final expenses =
+          snapshot.docs.map((doc) => Expense.fromDoc(doc)).toList();
+      setState(() {
+        allExpenses = expenses;
+        filteredExpenses = expenses;
+      });
+    } catch (e) {
+      debugPrint('Error loading expenses: $e');
+    }
   }
 
   // 🔹 Hapus dari Firestore
   Future<void> _deleteExpense(String id) async {
-    await _firestore.doc(id).delete();
-    _loadExpenses();
+    try {
+      await _firestore.doc(id).delete();
+      _loadExpenses();
+    } catch (e) {
+      debugPrint('Error deleting expense: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // final total = _calculateTotal(filteredExpenses);
-
     return Scaffold(
       backgroundColor: paleGreen,
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore.orderBy('date', descending: true).snapshots(),
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+          }
+
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
+          }
+
+          // 🔹 Lindungi dari null snapshot
+          if (!snapshot.hasData || snapshot.data == null) {
+            return const Center(child: Text('Belum ada data'));
           }
 
           allExpenses =
@@ -176,7 +191,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
                   children: [
                     _buildStatCard(
                       'Total',
-                      'Rp ${totalNow.toStringAsFixed(0)}',
+                      'Rp ${NumberFormat("#,###", "id_ID").format(totalNow)}',
                     ),
                     _buildStatCard('Jumlah', '${filteredExpenses.length} item'),
                     _buildStatCard(
@@ -187,7 +202,7 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
                 ),
               ),
 
-              // 🔹 Daftar
+              // 🔹 Daftar pengeluaran
               Expanded(
                 child:
                     filteredExpenses.isEmpty
@@ -316,13 +331,10 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
   void _applyFilters() {
     filteredExpenses =
         allExpenses.where((e) {
+          final query = searchController.text.toLowerCase();
           final matchesSearch =
-              e.title.toLowerCase().contains(
-                searchController.text.toLowerCase(),
-              ) ||
-              (e.description ?? '').toLowerCase().contains(
-                searchController.text.toLowerCase(),
-              );
+              e.title.toLowerCase().contains(query) ||
+              (e.description ?? '').toLowerCase().contains(query);
 
           final matchesCategory =
               selectedCategory == 'Semua' || e.category == selectedCategory;
@@ -331,15 +343,24 @@ class _AdvancedExpenseListScreenState extends State<AdvancedExpenseListScreen> {
         }).toList();
   }
 
-  String _calculateAverage(List<Expense> expenses) {
-    if (expenses.isEmpty) return 'Rp 0';
-    final avg =
-        expenses.fold(0.0, (sum, e) => sum + e.amount) / expenses.length;
-    return 'Rp ${avg.toStringAsFixed(0)}';
+  // 🔹 Hitung total semua pengeluaran
+  double _calculateTotal(List<Expense> expenses) {
+    double total = 0;
+    for (final expense in expenses) {
+      total += expense.amount;
+    }
+    return total;
   }
 
-  double _calculateTotal(List<Expense> expenses) {
-    return expenses.fold(0.0, (sum, e) => sum + e.amount);
+  // 🔹 Hitung rata-rata pengeluaran (dalam format Rupiah)
+  String _calculateAverage(List<Expense> expenses) {
+    if (expenses.isEmpty) return 'Rp 0';
+    final total = _calculateTotal(expenses);
+    final average = total / expenses.length;
+
+    // Format ribuan biar rapi
+    final formatted = NumberFormat("#,###", "id_ID").format(average);
+    return 'Rp $formatted';
   }
 
   IconData _getCategoryIcon(String category) {

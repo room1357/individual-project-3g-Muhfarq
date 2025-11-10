@@ -36,13 +36,17 @@ class Expense {
 
   // 🔹 Convert dari DocumentSnapshot (ambil dari Firestore)
   factory Expense.fromDoc(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>? ?? {};
+
     return Expense(
       id: doc.id,
-      title: data['title'] ?? '',
+      title: data['title'] ?? 'Tanpa Judul',
       amount: (data['amount'] ?? 0).toDouble(),
-      category: data['category'] ?? '',
-      date: (data['date'] as Timestamp).toDate(),
+      category: data['category'] ?? 'Lainnya',
+      date:
+          (data['date'] is Timestamp)
+              ? (data['date'] as Timestamp).toDate()
+              : DateTime.now(),
       description: data['description'] ?? '',
     );
   }
