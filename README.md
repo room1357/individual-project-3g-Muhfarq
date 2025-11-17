@@ -27,7 +27,7 @@ Segar, seimbang, dan terkontrol — mewakili manajemen keuangan yang stabil namu
 
 ### 🪪 Logo  
 <!-- ![Logo](https://github.com/user-attachments/assets/3ceb835b-48f1-4a0f-a892-6da367018157) -->
-<img width="440" height="956" alt="Image" src="https://github.com/user-attachments/assets/3ceb835b-48f1-4a0f-a892-6da367018157" />
+<!-- <img width="440" height="956" alt="Image" src="https://github.com/user-attachments/assets/3ceb835b-48f1-4a0f-a892-6da367018157" /> -->
 
 
 > **Deskripsi:**  
@@ -38,7 +38,7 @@ Melambangkan gaya yang sederhana dengan huruf "S" sebagai inisial nama Sakuku da
 
 ### ⚡ Splash Screen  
 <!-- ![Splash](https://github.com/user-attachments/assets/04c8c8ed-9965-479e-9164-47780d05c6a4) -->
-<img width="440" height="956" alt="Image" src="https://github.com/user-attachments/assets/04c8c8ed-9965-479e-9164-47780d05c6a4" />
+<!-- <img width="440" height="956" alt="Image" src="https://github.com/user-attachments/assets/04c8c8ed-9965-479e-9164-47780d05c6a4" /> -->
 
 
 > **Deskripsi:**  
@@ -50,7 +50,7 @@ Splash screen menampilkan logo aplikasi selama beberapa detik sebelum masuk ke l
 
 ### 🔐 Login & Signup Page  
 <!-- ![Auth](https://github.com/user-attachments/assets/381a07a7-e885-46e1-9d30-794bfe1dad1a) -->
-<img width="440" height="956" alt="Image" src="https://github.com/user-attachments/assets/381a07a7-e885-46e1-9d30-794bfe1dad1a" />
+<!-- <img width="440" height="956" alt="Image" src="https://github.com/user-attachments/assets/381a07a7-e885-46e1-9d30-794bfe1dad1a" /> -->
 
 
 > **Deskripsi:**  
@@ -67,7 +67,7 @@ Dilengkapi dengan validasi form, tombol interaktif, dan navigasi antar halaman.
 
 ### 🔐 Overview (Masih terus Berkembang)  
 <!-- ![Auth](https://github.com/user-attachments/assets/381a07a7-e885-46e1-9d30-794bfe1dad1a) -->
-<img width="1767" height="874" alt="Image" src="https://github.com/user-attachments/assets/b8e4892a-b24c-4029-a304-d7612b66521f" />
+<!-- <img width="1767" height="874" alt="Image" src="https://github.com/user-attachments/assets/b8e4892a-b24c-4029-a304-d7612b66521f" /> -->
 
 
 > **Deskripsi:**  
@@ -78,7 +78,7 @@ Menampilkan daftar transaksi, ringkasan keuangan, dan tombol aksi untuk menambah
 
 ### 🔐 Export Page   
 <!-- ![Auth](https://github.com/user-attachments/assets/381a07a7-e885-46e1-9d30-794bfe1dad1a) -->
-<img width="1541" height="899" alt="Image" src="https://github.com/user-attachments/assets/5d39de55-d031-4cac-8f4b-8bea44b4d8af" />
+<!-- <img width="1541" height="899" alt="Image" src="https://github.com/user-attachments/assets/5d39de55-d031-4cac-8f4b-8bea44b4d8af" /> -->
 
 
 > **Deskripsi:**  
@@ -87,7 +87,7 @@ Contoh tampilan Export.
 
 ### 🔐 Category  
 <!-- ![Auth](https://github.com/user-attachments/assets/381a07a7-e885-46e1-9d30-794bfe1dad1a) -->
-<img width="655" height="748" alt="Image" src="https://github.com/user-attachments/assets/62c98d80-f157-41fd-b953-9b46b1d78d9a" />
+<!-- <img width="655" height="748" alt="Image" src="https://github.com/user-attachments/assets/62c98d80-f157-41fd-b953-9b46b1d78d9a" /> -->
 
 
 > **Deskripsi:**  
@@ -96,7 +96,7 @@ Contoh tampilan Kategori.
 
 ### 🔐 Profile  
 <!-- ![Auth](https://github.com/user-attachments/assets/381a07a7-e885-46e1-9d30-794bfe1dad1a) -->
-<img width="1304" height="838" alt="Image" src="https://github.com/user-attachments/assets/4d390918-d1db-43c8-bcaa-3b4d55cae229" /> />
+<!-- <img width="1304" height="838" alt="Image" src="https://github.com/user-attachments/assets/4d390918-d1db-43c8-bcaa-3b4d55cae229" /> /> -->
 
 
 > **Deskripsi:**  
@@ -106,7 +106,7 @@ Contoh tampilan Profile.
 
 ### 🔐 Setting  
 <!-- ![Auth](https://github.com/user-attachments/assets/381a07a7-e885-46e1-9d30-794bfe1dad1a) -->
-<img width="1374" height="870" alt="Image" src="https://github.com/user-attachments/assets/9f5e4102-594e-4e4a-b719-161c62c369b0" /> />
+<!-- <img width="1374" height="870" alt="Image" src="https://github.com/user-attachments/assets/9f5e4102-594e-4e4a-b719-161c62c369b0" /> /> -->
 
 
 > **Deskripsi:**  
@@ -117,7 +117,7 @@ Contoh tampilan Setting.
 
 ### 🔐 Logout  
 <!-- ![Auth](https://github.com/user-attachments/assets/381a07a7-e885-46e1-9d30-794bfe1dad1a) -->
-<img width="985" height="643" alt="Image" src="https://github.com/user-attachments/assets/7d7a8f53-5164-46c6-bf32-a66cbead2e55" /> /> />
+<!-- <img width="985" height="643" alt="Image" src="https://github.com/user-attachments/assets/7d7a8f53-5164-46c6-bf32-a66cbead2e55" /> /> /> -->
 
 
 > **Deskripsi:**  
