@@ -143,10 +143,3 @@ Contoh tampilan Logout.
 - **Firebase Auth** 
 
 ---
-
-## 🧰 Setup & Run
-
-1. **Clone repository:**
-   ```bash
-   git clone https://github.com/yourusername/expense-tracker.git
-   cd expense-tracker
